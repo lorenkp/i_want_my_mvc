@@ -1,5 +1,6 @@
 require 'active_support/inflector'
 require 'erb'
+require_relative './session'
 
 class ControllerBase
   attr_reader :req, :res
