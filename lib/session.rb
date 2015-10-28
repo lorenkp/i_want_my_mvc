@@ -4,7 +4,7 @@ require 'webrick'
 class Session
   def initialize(req)
     found_cookie = req.cookies.find { |c| c.name == '_my_mvc_' }
-    @cookie = found_cookie ? JSON.parse(cookie.value) : {}
+    @cookie = found_cookie ? JSON.parse(found_cookie.value) : {}
   end
 
   def [](key)

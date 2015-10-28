@@ -11,7 +11,7 @@ class ControllerBase
     @req = req
     @res = res
     @params = Params.new(req, route_params)
-    @session = Session.new(res)
+    @session = Session.new(req)
   end
 
   def redirect_to(url)
