@@ -4,7 +4,7 @@ require_relative './session'
 require_relative './params'
 
 class ControllerBase
-  attr_reader :req, :res
+  attr_reader :req, :res, :params
   attr_accessor :already_built_response, :session
 
   def initialize(req, res, route_params = {})

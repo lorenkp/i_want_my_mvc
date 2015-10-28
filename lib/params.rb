@@ -4,7 +4,7 @@ class Params
   def initialize(req, route_params = {})
     @params = route_params
     @params.merge!(parse_www_encoded_form(req.query_string)) if req.query_string
-    @params.merge!(parse_www_encoded_form(req.query_string)) if req.body
+    @params.merge!(parse_www_encoded_form(req.body)) if req.body
   end
 
   def [](key)
