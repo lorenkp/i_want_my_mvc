@@ -30,7 +30,7 @@ class ControllerBase
     session.store_session(res)
   end
 
-  def render
+  def render(template_name)
     template_contents =
       File.read("app/views/#{self.class.name.underscore}/#{template_name}.html.erb")
     render_template(ERB.new(template_contents).result(binding), 'text/html')
