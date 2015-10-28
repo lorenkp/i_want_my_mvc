@@ -2,11 +2,12 @@
 
 require 'webrick'
 require_relative '../lib/router'
+require_relative '../app/controllers/users_controller'
 
 router = Router.new
 router.draw do
   # Routes are drawn here. For example, to get the index of users:
-  # get Regexp.new("^/$"), UsersController, :index
+  get Regexp.new('^/$'), UsersController, :index
 end
 
 PORT = ARGV[0] || 3000

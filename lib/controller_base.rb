@@ -32,11 +32,11 @@ class ControllerBase
 
   def render(template_name)
     template_contents =
-      File.read("app/views/#{self.class.name.underscore}/#{template_name}.html.erb")
+      File.read("../app/views/#{self.class.name.underscore}/#{template_name}.html.erb")
     render_template(ERB.new(template_contents).result(binding), 'text/html')
   end
 
-  def invoke_action
+  def invoke_action(name)
     send(name)
     render(name) unless already_built_response
   end
