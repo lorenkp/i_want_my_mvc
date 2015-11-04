@@ -1,13 +1,15 @@
-require 'active_support/inflector'
+require 'pry-byebug'
 require 'pg'
+require 'active_support/inflector'
 
-Database = PG.new
+
+Database = PG::Connection.open(:dbname => 'mvc')
 
 class ModelBase
   def initialize(params)
     params.each do |key, val|
-      if self.class.columns.include?(k.to_sym)
-        send((k + '=').to_sym, val)
+      if self.class.columns.include?(key.to_sym)
+        send((key + '=').to_sym, val)
       else
         fail("unknown attribute #{key}")
       end
@@ -26,22 +28,20 @@ class ModelBase
     return @columns if @columns
     cols = Database.exec(<<-SQL)
     SELECT
-    column_name
+      *
     FROM
-    information_schema.columns
-    WHERE
-    table_name = #{self.table_name}
-      SQL
+      #{table_name}
+    SQL
     @columns = cols.fields.map(&:to_sym)
   end
 
   def self.make_column_attr_accessors!
     columns.each do |col|
       define_method(col) do
-        attributes(col)
+        attributes[col]
       end
 
-      define_method((col.to_s + '-').to_sym) do |obj|
+      define_method((col.to_s + '=').to_sym) do |obj|
         attributes[col] = obj
       end
     end
@@ -50,9 +50,9 @@ class ModelBase
   def self.all
     query_hash = Database.exec(<<-SQL)
     SELECT
-    #{table_name}.*
+      #{table_name}.*
     FROM
-    #{table_name}
+      #{table_name}
     SQL
     parse_all(query_hash)
   end
@@ -70,6 +70,7 @@ class ModelBase
   end
 
   def self.find(id)
+    binding.pry
     result = Database.exec(<<-SQL, [id])
       SELECT
        *
@@ -78,7 +79,7 @@ class ModelBase
       WHERE
        id = $1
     SQL
-    result.empty? ? nil : new(result[0])
+    new(result[0])
   end
 
   def insert
@@ -114,9 +115,8 @@ class ModelBase
   end
 
   def self.where(params)
-    where_line = params.keys.map{ |key| key.to_s + ' = ?' }.join(' AND ')
-
-    results = DB.exec(<<-SQL, params.values)
+    where_line = params.keys.map.with_index(1) { |key, idx| key.to_s + " = $#{idx}" }.join(' AND ')
+    results = Database.exec(<<-SQL, params.values)
       SELECT
        *
       FROM
@@ -124,7 +124,15 @@ class ModelBase
       WHERE
        #{where_line}
     SQL
-
     parse_all(results)
   end
 end
+
+class Users < ModelBase
+end
+
+Users.make_column_attr_accessors!
+binding.pry
+'hello'
+
+

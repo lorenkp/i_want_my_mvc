@@ -2,4 +2,5 @@ source 'https://rubygems.org'
 
 gem 'webrick'
 gem 'activesupport'
-gem 'rspec'
+gem 'pg'
+gem 'pry-byebug', '=1.3.3'
