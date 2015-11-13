@@ -1,11 +1,13 @@
-require 'pry-byebug'
 require 'pg'
 require 'active_support/inflector'
+require_relative 'associatable'
 
 
-Database = PG::Connection.open(:dbname => 'mvc')
+#Your database
+# Database = PG::Connection.open(:dbname => 'mvc')
 
 class ModelBase
+  extend Associations
   def initialize(params)
     params.each do |key, val|
       if self.class.columns.include?(key.to_sym)
@@ -127,12 +129,3 @@ class ModelBase
     parse_all(results)
   end
 end
-
-class Users < ModelBase
-end
-
-Users.make_column_attr_accessors!
-binding.pry
-'hello'
-
-
