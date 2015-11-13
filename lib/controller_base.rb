@@ -31,9 +31,10 @@ class ControllerBase
   end
 
   def render(template_name)
-    template_contents =
-      File.read("../app/views/#{self.class.name.underscore}/#{template_name}.html.erb")
-    render_template(ERB.new(template_contents).result(binding), 'text/html')
+    filename = File.dirname(__FILE__) +
+      "/../app/views/#{self.class.to_s.underscore}/#{template_name}.html.erb"
+    erb_file = ERB.new(File.read(filename))
+    render_template(erb_file.result(binding), 'text/html')
   end
 
   def invoke_action(name)
