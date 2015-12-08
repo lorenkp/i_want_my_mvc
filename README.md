@@ -1,63 +1,92 @@
 # 'I Want My MVC' Framework
-This is a convention over configuration MVC framework built in Ruby that accomplishes CRUD functions.
+This is a convention-over-configuration web framework inspired by Ruby on Rails. It uses MVC architecture, and has an ORM thanks to metaprogramming.
 
-#### You can see a working demo [here](https://i-want-my-mvc.herokuapp.com).
+I've deployed a very rudimentary site to Heroku that shows it supporting CRUD functions: [Demo](https://i-want-my-mvc.herokuapp.com).
 
 ## Models
 
-Rails ActiveRecord style class methods are provided—`all`, `find`, `where`—as well as associative class methods—`has_many`, `belongs_to`. As this is convention over configuration, set up your models in app/models, and have them inherit from ModelBase:
+Model classes will inherit from `ModelBase`, and go in `app/models`. Class methods `all`, `find`, `where`, `has_many`, and `belongs_to` are given:
 
 ```ruby
-require_relative '../../lib/model_base'
-
-class YourModel < ModelBase
+class Post < ModelBase
+  belongs_to :user
   make_column_attr_accessors!
 end
-```
 
-`make_column_attr_accessors!` is required, as this triggers metaprogramming to create the getter and setter methods based on the model's table's schema, and these are required to interact with the database, and manipulate the models.
-
-## Controllers/Views
-
-This uses Ruby ERB templates. Again, as this is convention over configuration (gotta love it), put your views into app/views/[controller_name], and the controller action will automatically render the template with the same name, e.g. `index.html.erb`. There's even a handy `redirect_to` method that you can use instead of the automatic rendering.
-
-```ruby
-class MyController <ControllerBase
+class PostsController < ControllerBase
   def index
-    redirect_to('/')
-    #if you so fancy
+    @posts = Post.all
   end
 end
 ```
 
-## Routes
+A couple notes: 
 
-Routes are placed in bin/server. To set up a route, define the HTTP verb, a regex expression to match the route, the target controller, and the action to run, e.g.:
+1. `make_column_attr_accessors!` must be called to trigger metaprogramming; an accessor will be made for each column in that model's table.
 
-```ruby
-get Regexp.new('^/posts/\d+$'), PostsController, :show
-```
-
-## Params
-
-A `Params` class decodes URL-encoded form data, as well as parameters stored in the request body, and stores it in a convenient `params` getter method, accessible in the controller.
+2. Use `belongs_to` and `has_many` to form associations with other models. If you're following convention, the name of the model is enough. But if there's a situation where you want a more semantic name, for example `post.author`, when `author` represents an instance of the `User` model, specify the class name:
 
 ```ruby
-def post_params
-  {
-    :title => params['post']['title'],
-    :body => params['post']['body']
-  }
+class Post < ModelBase
+  belongs_to :author, :class_name => :user
+  make_column_attr_accessors!
 end
 ```
 
-## `belongs_to` and `has_many`
+The same same flexibility is provided for `foreign_key`.
 
-There's some magic here: the convention I've made is to store the foreign key as `"#{associated_model}_id"`. So all you have to do is put in the model is `belongs_to :post`, for example. However, you can over ride the defaults and put in your own `foreign_key` or `class_name`, if you'd like.
+## Controllers
+
+The `view` with the name of the controller action is implicitly rendered:
+
 
 ```ruby
-class YourModel < ModelBase
-  belongs_to :another_model, :class_name => :something
-  make_column_attr_accessors!
+class PostsController < ControllerBase
+  def index
+  end
+end
+```
+This will render `app/views/posts_controller/index.html.erb`. But if you'd like to redirect instead, use `redirect_to`:
+
+```ruby
+class PostsController < ControllerBase
+  def index
+    redirect_to ('/')
+  end
+end
+```
+
+###Params
+Key in to the `params` reader, for form data encoded into the request body and/or the query string:
+```ruby
+
+class MyController < ControllerBase
+  def create
+    @post = Post.new(post_params)
+  end
+
+  private
+
+  def post_params
+    {
+      :title => params['post']['title'],
+      :body => params['post']['body']
+    }
+  end
+end
+```
+
+##Views
+
+This framework uses ERB templates, and as mentioned above, are named and organized by the controller action (`app/views/posts_controller/index.html.erb`)
+
+
+## Routes
+
+Routes are placed in `bin/server`. To set up a route, define the HTTP verb, a regex expression to match the route, the target controller, and the action to run:
+
+```ruby
+router.draw do
+  get Regexp.new('^/posts/\d+$'), PostsController, :show
 end
 ```
