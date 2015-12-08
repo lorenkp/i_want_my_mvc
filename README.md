@@ -46,7 +46,9 @@ class PostsController < ControllerBase
   end
 end
 ```
-This will render `app/views/posts_controller/index.html.erb`. But if you'd like to redirect instead, use `redirect_to`:
+This will render `app/views/posts_controller/index.html.erb`. 
+
+But if you'd like to redirect instead, use `redirect_to`:
 
 ```ruby
 class PostsController < ControllerBase
@@ -57,7 +59,7 @@ end
 ```
 
 ###Params
-Key in to the `params` reader, for form data encoded into the request body and/or the query string:
+Key in to the `params` reader, for form data encoded into the request body and/or a query string:
 ```ruby
 
 class MyController < ControllerBase
@@ -78,7 +80,7 @@ end
 
 ##Views
 
-This framework uses ERB templates, and as mentioned above, are named and organized by the controller action (`app/views/posts_controller/index.html.erb`)
+This framework uses ERB templates, and as mentioned above, are named and organized by the controller action (`app/views/posts_controller/index.html.erb`).
 
 
 ## Routes
